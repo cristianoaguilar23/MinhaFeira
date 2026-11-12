@@ -1,6 +1,6 @@
 name: Gerar APK Minha Feira
 
-on:
+'on':
 workflow_dispatch:
 
 permissions:
