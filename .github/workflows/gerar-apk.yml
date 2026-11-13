@@ -47,6 +47,13 @@ jobs:
           log-accepted-android-sdk-licenses: false
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
+      - name: Conferir configuracao Java
+        working-directory: _build/MinhaFeira
+        run: |
+          echo "VERIFICANDO CONFIGURACAO"
+          cat app/build.gradle.kts
+          echo "FIM DA CONFIGURACAO"
+
       - name: Compilar aplicativo
         working-directory: _build/MinhaFeira
         run: gradle --no-daemon :app:assembleDebug
