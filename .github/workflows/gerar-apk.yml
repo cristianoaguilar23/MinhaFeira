@@ -1,66 +1,87 @@
 name: Gerar APK Minha Feira
 
 on:
-  workflow_dispatch:
+workflow_dispatch:
 
 permissions:
-  contents: read
+contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+build:
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Baixar arquivos do repositorio
-        uses: actions/checkout@v4
+steps:
+  - name: Baixar arquivos do repositorio
+    uses: actions/checkout@v4
 
-      - name: Preparar projeto
-        run: |
-          ZIP=$(find . -maxdepth 1 -name 'Minha_Feira_Projeto_Android*.zip' | head -n 1)
-          if [ -z "$ZIP" ]; then
-            echo "Arquivo ZIP do projeto nao encontrado."
-            exit 1
-          fi
-          mkdir _build
-          unzip -q "$ZIP" -d _build
-          if [ ! -d "_build/MinhaFeira" ]; then
-            echo "Pasta MinhaFeira nao encontrada dentro do ZIP."
-            find _build -maxdepth 3 -type f | head -50
-            exit 1
-          fi
+  - name: Preparar projeto
+    run: |
+      ZIP="./Minha_Feira_Projeto_Android_v6_cloud.zip"
 
-      - name: Configurar Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
+      echo "Projeto selecionado: $ZIP"
 
-      - name: Configurar Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
+      if [ ! -f "$ZIP" ]; then
+        echo "ERRO: Arquivo ZIP nao encontrado!"
+        ls -la
+        exit 1
+      fi
 
-      - name: Configurar Android SDK
-        uses: android-actions/setup-android@v4
-        with:
-          accept-android-sdk-licenses: true
-          log-accepted-android-sdk-licenses: false
-          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      mkdir _build
+      unzip -q "$ZIP" -d _build
 
-      - name: Conferir configuracao Java
-        working-directory: _build/MinhaFeira
-        run: |
-          echo "VERIFICANDO CONFIGURACAO"
-          cat app/build.gradle.kts
-          echo "FIM DA CONFIGURACAO"
+      if [ ! -d "_build/MinhaFeira" ]; then
+        echo "ERRO: Pasta MinhaFeira nao encontrada!"
+        find _build -maxdepth 3 -type f | head -50
+        exit 1
+      fi
 
-      - name: Compilar aplicativo
-        working-directory: _build/MinhaFeira
-        run: gradle --no-daemon :app:assembleDebug
+  - name: Configurar Java
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '17'
 
-      - name: Disponibilizar APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Minha-Feira-APK
-          path: _build/MinhaFeira/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 14
+  - name: Configurar Gradle
+    uses: gradle/actions/setup-gradle@v4
+    with:
+      gradle-version: '8.9'
+
+  - name: Configurar Android SDK
+    uses: android-actions/setup-android@v4
+    with:
+      accept-android-sdk-licenses: true
+      log-accepted-android-sdk-licenses: false
+      packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+
+  - name: Conferir configuracao Java
+    working-directory: _build/MinhaFeira
+    run: |
+      echo "VERIFICANDO CONFIGURACAO DO PROJETO"
+      echo "-----------------------------------"
+
+      find . -maxdepth 3 -type f -name "*.gradle" -o -name "*.gradle.kts"
+
+      echo "-----------------------------------"
+      echo "ARQUIVO GRADLE DO APP"
+
+      if [ -f app/build.gradle.kts ]; then
+        cat app/build.gradle.kts
+      elif [ -f app/build.gradle ]; then
+        cat app/build.gradle
+      else
+        echo "Arquivo Gradle do aplicativo nao encontrado."
+        exit 1
+      fi
+
+      echo "-----------------------------------"
+
+  - name: Compilar aplicativo
+    working-directory: _build/MinhaFeira
+    run: gradle --no-daemon :app:assembleDebug
+
+  - name: Disponibilizar APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: Minha-Feira-APK
+      path: _build/MinhaFeira/app/build/outputs/apk/debug/app-debug.apk
+      retention-days: 14
