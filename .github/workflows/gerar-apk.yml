@@ -24,7 +24,6 @@ uses: actions/checkout@v4
       mkdir _build
       unzip -q "$ZIP" -d _build
       test -d "_build/MinhaFeira"
-
   - name: Configurar Java
     uses: actions/setup-java@v4
     with:
