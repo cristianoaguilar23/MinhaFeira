@@ -9,31 +9,21 @@ contents: read
 jobs:
 build:
 runs-on: ubuntu-latest
-
 steps:
-  - name: Baixar arquivos do repositorio
-    uses: actions/checkout@v4
+- name: Baixar arquivos
+uses: actions/checkout@v4
 
   - name: Preparar projeto
     run: |
       ZIP="./Minha_Feira_Projeto_Android_v6_cloud.zip"
-
-      echo "Projeto selecionado: $ZIP"
-
       if [ ! -f "$ZIP" ]; then
-        echo "ERRO: Arquivo ZIP nao encontrado!"
+        echo "Arquivo ZIP nao encontrado"
         ls -la
         exit 1
       fi
-
       mkdir _build
       unzip -q "$ZIP" -d _build
-
-      if [ ! -d "_build/MinhaFeira" ]; then
-        echo "ERRO: Pasta MinhaFeira nao encontrada!"
-        find _build -maxdepth 3 -type f | head -50
-        exit 1
-      fi
+      test -d "_build/MinhaFeira"
 
   - name: Configurar Java
     uses: actions/setup-java@v4
@@ -53,27 +43,11 @@ steps:
       log-accepted-android-sdk-licenses: false
       packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
-  - name: Conferir configuracao Java
+  - name: Conferir configuracao
     working-directory: _build/MinhaFeira
     run: |
-      echo "VERIFICANDO CONFIGURACAO DO PROJETO"
-      echo "-----------------------------------"
-
-      find . -maxdepth 3 -type f -name "*.gradle" -o -name "*.gradle.kts"
-
-      echo "-----------------------------------"
-      echo "ARQUIVO GRADLE DO APP"
-
-      if [ -f app/build.gradle.kts ]; then
-        cat app/build.gradle.kts
-      elif [ -f app/build.gradle ]; then
-        cat app/build.gradle
-      else
-        echo "Arquivo Gradle do aplicativo nao encontrado."
-        exit 1
-      fi
-
-      echo "-----------------------------------"
+      echo "CONFIGURACAO DO APP"
+      cat app/build.gradle.kts
 
   - name: Compilar aplicativo
     working-directory: _build/MinhaFeira
