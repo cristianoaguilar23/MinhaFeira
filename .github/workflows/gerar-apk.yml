@@ -15,7 +15,7 @@ jobs:
 
       - name: Preparar projeto
         run: |
-          ZIP="./Minha_Feira_Projeto_Android_v6_cloud.zip"
+          ZIP="./.github/workflows/Minha_Feira_Projeto_Android_v6_cloud.zip"
           if [ ! -f "$ZIP" ]; then
             echo "Arquivo ZIP nao encontrado"
             ls -la
